@@ -80,7 +80,7 @@ class Resnet18(nn.Module):
         x = self.mixer4(x)
         x = x + res3
         res4 = self.block4(self.block4(x))
-        x = F.relu(x + res4)
+        x = x + res4
     
         x = self.gap(x)
 
