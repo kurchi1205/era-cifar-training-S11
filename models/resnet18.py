@@ -20,7 +20,7 @@ class Resnet18(nn.Module):
 
         self.mixer2 = nn.Conv2d(self.base_channels, self.base_channels*2, 1, stride=2)
         self.prepblock2 = nn.Sequential(
-            nn.Conv2d(self.base_channels, self.base_channels*2, 3, stride=2),
+            nn.Conv2d(self.base_channels, self.base_channels*2, 3, stride=2, padding=1),
             nn.BatchNorm2d(self.base_channels*2),
             nn.Dropout(0.1),
         )
@@ -32,7 +32,7 @@ class Resnet18(nn.Module):
 
         self.mixer3 = nn.Conv2d(self.base_channels*2, self.base_channels*4, 1, stride=2)
         self.prepblock3 = nn.Sequential(
-            nn.Conv2d(self.base_channels*2, self.base_channels*4, 3, stride=2),
+            nn.Conv2d(self.base_channels*2, self.base_channels*4, 3, stride=2, padding=1),
             nn.BatchNorm2d(self.base_channels*4),
             nn.Dropout(0.1),
         )
@@ -44,7 +44,7 @@ class Resnet18(nn.Module):
 
         self.mixer4 = nn.Conv2d(self.base_channels*4, self.base_channels*8, 1, stride=2)
         self.prepblock4 = nn.Sequential(
-            nn.Conv2d(self.base_channels*4, self.base_channels*8, 3, stride=2),
+            nn.Conv2d(self.base_channels*4, self.base_channels*8, 3, stride=2, padding=1),
             nn.BatchNorm2d(self.base_channels*8),
             nn.Dropout(0.1),
         )
