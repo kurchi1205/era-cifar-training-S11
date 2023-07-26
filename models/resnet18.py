@@ -6,7 +6,7 @@ class Resnet18(nn.Module):
     def __init__(self):
         super(Resnet18, self).__init__()
         self.base_channels = 64
-        self.mixer1 = nn.Conv2d(3, self.base_channels*2, 1, stride=1)
+        self.mixer1 = nn.Conv2d(3, self.base_channels, 1, stride=1)
         self.prepblock1 = nn.Sequential(
             nn.Conv2d(3, self.base_channels, 3, padding=1),
             nn.BatchNorm2d(self.base_channels),
