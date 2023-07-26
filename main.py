@@ -37,7 +37,7 @@ def get_optimizer(model, optimizer_type = "adam"):
     return optimizer
 
 
-def train(model, device, train_loader, optimizer, epoch, train_losses, train_acc):
+def train(model, device, train_loader, optimizer, scheduler, epoch, train_losses, train_acc):
       model.train()
       pbar = tqdm(train_loader)
       correct = 0
@@ -62,6 +62,8 @@ def train(model, device, train_loader, optimizer, epoch, train_losses, train_acc
         # Backpropagation
         loss.backward()
         optimizer.step()
+        if scheduler is not None:
+            scheduler.step()
 
         # Update pbar-tqdm
 
