@@ -1,10 +1,13 @@
 from utils import CIFAR10WithAlbumentations, train_transforms, test_transforms
 from models.resnet18 import Resnet18
 import torch
+import torch.nn as nn
 from torchsummary import summary
+from tqdm import tqdm
 
 cuda = torch.cuda.is_available()
 device = torch.device("cuda" if cuda else "cpu")
+
 
 def get_data():
     train_ds = CIFAR10WithAlbumentations('./data', train=True, download=True, transform=train_transforms)
@@ -12,11 +15,93 @@ def get_data():
     return train_ds, test_ds
 
 
-def get_dataloader(data, shuffle=True, num_workers=4):
-    dataloader_args = dict(shuffle=shuffle, batch_size=512, num_workers=num_workers, pin_memory=True) if cuda else dict(shuffle=True, batch_size=64)
+def get_dataloader(data, batch_size, shuffle=True, num_workers=4):
+    dataloader_args = dict(shuffle=shuffle, batch_size=batch_size, num_workers=num_workers, pin_memory=True) if cuda else dict(shuffle=True, batch_size=64)
     loader = torch.utils.data.DataLoader(data, **dataloader_args)
     return loader
+
 
 def get_model_summary():
     model = Resnet18().to(device)
     summary(model, input_size=(3, 32, 32))
+
+
+def get_optimizer(model, optimizer_type = "adam"):
+    if optimizer_type == "adam":
+        optimizer = torch.optim.Adam(model.parameters(), lr=0.01)
+    elif optimizer_type == "sgd":
+        optimizer = torch.optim.SGD(model.parameters(), lr=0.01, momentum=0.9)
+    return optimizer
+
+
+def train(model, device, train_loader, optimizer, epoch, train_losses, train_acc):
+      model.train()
+      pbar = tqdm(train_loader)
+      correct = 0
+      processed = 0
+      loss_fn = nn.CrossEntropyLoss()
+      for batch_idx, (data, target) in enumerate(pbar):
+        # get samples
+        data, target = data.to(device), target.to(device)
+
+        # Init
+        optimizer.zero_grad()
+        # In PyTorch, we need to set the gradients to zero before starting to do backpropragation because PyTorch accumulates the gradients on subsequent backward passes.
+        # Because of this, when you start your training loop, ideally you should zero out the gradients so that you do the parameter update correctly.
+
+        # Predict
+        y_pred = model(data)
+
+        # Calculate loss
+        loss = loss_fn(y_pred, target)
+        train_losses.append(loss)
+
+        # Backpropagation
+        loss.backward()
+        optimizer.step()
+
+        # Update pbar-tqdm
+
+        pred = y_pred.argmax(dim=1, keepdim=True)  # get the index of the max log-probability
+        correct += pred.eq(target.view_as(pred)).sum().item()
+        processed += len(data)
+
+        pbar.set_description(desc= f'Loss={loss.item()} Batch_id={batch_idx} Accuracy={100*correct/processed:0.2f}')
+        train_acc.append(100*correct/processed)
+
+
+def test(model, device, test_loader, test_losses, test_acc):
+    model.eval()
+    test_loss = 0
+    correct = 0
+    loss_fn = nn.CrossEntropyLoss(reduction="sum")
+    with torch.no_grad():
+        for data, target in test_loader:
+            data, target = data.to(device), target.to(device)
+            output = model(data)
+            test_loss += loss_fn(output, target).item()  # sum up batch loss
+            pred = output.argmax(dim=1, keepdim=True)  # get the index of the max log-probability
+            correct += pred.eq(target.view_as(pred)).sum().item()
+                
+    test_loss /= len(test_loader.dataset)
+    test_losses.append(test_loss)
+
+    print('\nTest set: Average loss: {:.4f}, Accuracy: {}/{} ({:.2f}%)\n'.format(
+        test_loss, correct, len(test_loader.dataset),
+        100. * correct / len(test_loader.dataset)))
+
+    test_acc.append(100. * correct / len(test_loader.dataset))
+
+
+def train_model(epochs, model, train_loader, test_loader, optimizer_type, use_scheduler=False):
+    optimizer = get_optimizer(model, optimizer_type)
+    if not use_scheduler:
+        scheduler = None
+    train_losses = []
+    test_losses = []
+    train_acc = []
+    test_acc = []
+    for epoch in range(epochs):
+        print("EPOCH:", epoch)
+        train(model, device, train_loader, optimizer, scheduler, epoch, train_losses, train_acc)
+        test(model, device, test_loader, test_losses, test_acc)
