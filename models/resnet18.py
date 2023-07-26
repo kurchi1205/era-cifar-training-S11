@@ -61,26 +61,26 @@ class Resnet18(nn.Module):
     def forward(self, x):
         res1 = self.block1(self.Relu(self.prepblock1(x)))
         x = self.mixer1(x) 
-        x = x + res1
-        res2 = self.block1(self.block1(x))
+        x = self.Relu(x + res1)
+        res2 = self.block1(self.Relu(self.block1(x)))
         x = self.Relu(x + res2)
 
         res3 = self.block2(self.Relu(self.prepblock2(x)))
         x = self.mixer2(x)
-        x = x + res3
-        res4 = self.block2(self.block2(x))
+        x = self.Relu(x + res3)
+        res4 = self.block2(self.Relu(self.block2(x)))
         x = self.Relu(x + res4)
 
         res5 = self.block3(self.Relu(self.prepblock3(x)))
         x = self.mixer3(x)
-        x = x + res5
-        res6 = self.block3(self.block3(x))
+        x = self.Relu(x + res5)
+        res6 = self.block3(self.Relu(self.block3(x)))
         x = self.Relu(x + res6)
 
         res3 = self.block4(self.Relu(self.prepblock4(x)))
         x = self.mixer4(x)
-        x = x + res3
-        res4 = self.block4(self.block4(x))
+        x = self.Relu(x + res3)
+        res4 = self.block4(self.Relu(self.block4(x)))
         x = x + res4
     
         x = self.gap(x)
