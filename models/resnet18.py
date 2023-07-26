@@ -53,30 +53,31 @@ class Resnet18(nn.Module):
             nn.BatchNorm2d(self.base_channels*8),
             nn.Dropout(0.1),
         )
+        self.Relu = nn.ReLU()
 
         self.gap = nn.AvgPool2d(kernel_size=3)
         self.fc = nn.Linear(self.base_channels*8, 10)
 
     def forward(self, x):
-        res1 = self.block1(F.relu(self.prepblock1(x)))
+        res1 = self.block1(self.Relu(self.prepblock1(x)))
         x = self.mixer1(x) 
         x = x + res1
         res2 = self.block1(self.block1(x))
-        x = F.relu(x + res2)
+        x = self.Relu(x + res2)
 
-        res3 = self.block2(F.relu(self.prepblock2(x)))
+        res3 = self.block2(self.Relu(self.prepblock2(x)))
         x = self.mixer2(x)
         x = x + res3
         res4 = self.block2(self.block2(x))
-        x = F.relu(x + res4)
+        x = self.Relu(x + res4)
 
-        res5 = self.block3(F.relu(self.prepblock3(x)))
+        res5 = self.block3(self.Relu(self.prepblock3(x)))
         x = self.mixer3(x)
         x = x + res5
         res6 = self.block3(self.block3(x))
-        x = F.relu(x + res6)
+        x = self.Relu(x + res6)
 
-        res3 = self.block4(F.relu(self.prepblock4(x)))
+        res3 = self.block4(self.Relu(self.prepblock4(x)))
         x = self.mixer4(x)
         x = x + res3
         res4 = self.block4(self.block4(x))
