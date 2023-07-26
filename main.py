@@ -21,8 +21,11 @@ def get_dataloader(data, batch_size, shuffle=True, num_workers=4):
     return loader
 
 
-def get_model_summary():
+def get_model():
     model = Resnet18().to(device)
+    return model
+
+def get_model_summary(model):
     summary(model, input_size=(3, 32, 32))
 
 
