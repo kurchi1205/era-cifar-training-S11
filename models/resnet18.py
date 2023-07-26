@@ -54,6 +54,9 @@ class Resnet18(nn.Module):
             nn.Dropout(0.1),
         )
 
+        self.gap = nn.AdaptiveAvgPool2d(3)
+        self.fc = nn.Linear(self.base_channels*8, 10)
+
     def forward(self, x):
         res1 = self.block1(F.relu(self.prepblock1(x)))
         x = self.mixer1(x) 
@@ -78,5 +81,12 @@ class Resnet18(nn.Module):
         x = x + res3
         res4 = self.block4(self.block4(x))
         x = F.relu(x + res4)
+    
+        x = self.gap(x)
+
+        x = x.view(-1, self.base_channels*8)
+        x = self.fc(x)
+        return F.log_softmax(x, dim=-1)
+
 
 
