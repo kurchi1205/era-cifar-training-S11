@@ -59,8 +59,9 @@ class Resnet18(nn.Module):
         self.fc = nn.Linear(self.base_channels*8, 10)
 
     def forward(self, x):
-        res1 = self.block1(self.Relu(self.prepblock1(x)))
-        x = self.mixer1(x) 
+        x = self.prepblock1(x)
+        
+        res1 = self.block1(self.Relu(self.block1(x)))
         x = self.Relu(x + res1)
         res2 = self.block1(self.Relu(self.block1(x)))
         x = self.Relu(x + res2)
