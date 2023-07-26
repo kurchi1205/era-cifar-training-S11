@@ -54,7 +54,7 @@ class Resnet18(nn.Module):
             nn.Dropout(0.1),
         )
 
-        self.gap = nn.AdaptiveAvgPool2d(3)
+        self.gap = nn.AvgPool2d(kernel_size=3)
         self.fc = nn.Linear(self.base_channels*8, 10)
 
     def forward(self, x):
