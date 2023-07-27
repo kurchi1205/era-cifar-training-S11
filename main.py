@@ -1,5 +1,6 @@
 from utils import CIFAR10WithAlbumentations, train_transforms, test_transforms
 from models.resnet18 import Resnet18
+from models.resnet import ResNet18
 import torch
 import torch.nn as nn
 from torchsummary import summary
@@ -23,7 +24,7 @@ def get_dataloader(data, batch_size, shuffle=True, num_workers=4):
 
 
 def get_model():
-    model = Resnet18().to(device)
+    model = ResNet18().to(device)
     return model
 
 def get_model_summary(model):
