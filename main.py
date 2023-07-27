@@ -30,11 +30,11 @@ def get_model_summary(model):
     summary(model, input_size=(3, 32, 32))
 
 
-def get_optimizer(model, optimizer_type = "adam"):
+def get_optimizer(model, lr=0.01, optimizer_type = "adam"):
     if optimizer_type == "adam":
-        optimizer = torch.optim.Adam(model.parameters(), lr=0.01)
+        optimizer = torch.optim.Adam(model.parameters(), lr=lr)
     elif optimizer_type == "sgd":
-        optimizer = torch.optim.SGD(model.parameters(), lr=0.01, momentum=0.9)
+        optimizer = torch.optim.SGD(model.parameters(), lr=lr, momentum=0.9)
     return optimizer
 
 
@@ -113,8 +113,7 @@ def test(model, device, test_loader, test_losses, test_acc):
     test_acc.append(100. * correct / len(test_loader.dataset))
 
 
-def train_model(epochs, model, train_loader, test_loader, optimizer_type, scheduler=None):
-    optimizer = get_optimizer(model, optimizer_type)
+def train_model(epochs, model, train_loader, test_loader, optimizer, scheduler=None):
     train_losses = []
     test_losses = []
     train_acc = []
