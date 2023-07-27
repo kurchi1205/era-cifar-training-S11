@@ -1,4 +1,4 @@
-from utils import CIFAR10WithAlbumentations, train_transforms, test_transforms
+from utils import CIFAR10WithAlbumentations, train_transforms, test_transforms, get_misclassified_images_with_label
 from models.resnet18 import Resnet18
 from models.resnet import ResNet18
 import torch
@@ -123,3 +123,16 @@ def train_model(epochs, model, train_loader, test_loader, optimizer, scheduler=N
         print("EPOCH:", epoch)
         train(model, device, train_loader, optimizer, scheduler, epoch, train_losses, train_acc)
         test(model, device, test_loader, test_losses, test_acc)
+
+
+def infer(model, device, infer_loader, misclassified):
+    model.eval()
+    with torch.no_grad():
+        for data, target in infer_loader:
+            data, target = data.to(device), target.to(device)
+            output = model(data)
+            pred = output.argmax(dim=1, keepdim=True)
+            if pred.eq(target.view_as(pred)).sum().item() == 1:
+                misclassified.append(get_misclassified_images_with_label(data, pred))
+            if len(misclassified) == 10:
+                break
