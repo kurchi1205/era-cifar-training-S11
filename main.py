@@ -3,6 +3,7 @@ from models.resnet18 import Resnet18
 import torch
 import torch.nn as nn
 from torchsummary import summary
+from torch_lr_finder import LRFinder
 from tqdm import tqdm
 
 cuda = torch.cuda.is_available()
@@ -35,6 +36,20 @@ def get_optimizer(model, optimizer_type = "adam"):
     elif optimizer_type == "sgd":
         optimizer = torch.optim.SGD(model.parameters(), lr=0.01, momentum=0.9)
     return optimizer
+
+
+def get_lr(model, optimizer, train_loader, test_loader, num_iter):
+    criterion = nn.CrossEntropyLoss()
+    lr_finder = LRFinder(model, optimizer, criterion, device=device)
+    lr_finder.range_test(train_loader, val_loader=test_loader, end_lr=1, num_iter=num_iter, step_mode="exp")
+    lr = lr_finder.plot(log_lr=True, suggest_lr=True)
+    lr_finder.reset()
+
+
+def get_scheduler(train_loader, optimizer, epochs, max_lr, div_factor=10, final_div_factor=100, three_phase=True):
+    scheduler = torch.optim.lr_scheduler.OneCycleLR(optimizer, max_lr=max_lr, epochs=epochs, steps_per_epoch=len(train_loader), anneal_strategy='cos',\
+                                                div_factor=div_factor, final_div_factor=final_div_factor, three_phase=three_phase)
+    return scheduler
 
 
 def train(model, device, train_loader, optimizer, scheduler, epoch, train_losses, train_acc):
@@ -98,10 +113,8 @@ def test(model, device, test_loader, test_losses, test_acc):
     test_acc.append(100. * correct / len(test_loader.dataset))
 
 
-def train_model(epochs, model, train_loader, test_loader, optimizer_type, use_scheduler=False):
+def train_model(epochs, model, train_loader, test_loader, optimizer_type, scheduler=None):
     optimizer = get_optimizer(model, optimizer_type)
-    if not use_scheduler:
-        scheduler = None
     train_losses = []
     test_losses = []
     train_acc = []
