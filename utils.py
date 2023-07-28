@@ -74,5 +74,6 @@ def get_misclassified_images_with_label(tensor, pred_label, class_to_idx):
             pred_class = cls
     return {
         "img": img,
-        "pred_class": pred_class
+        "pred_class": pred_class,
+        "tensor": tensor
     }
