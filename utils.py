@@ -52,8 +52,7 @@ def visualize_cam(cam, rgb_img, input_tensor, img_id):
     print(targets)
     grayscale_cam = cam(input_tensor=input_tensor, targets=targets)
     visualization = show_cam_on_image(rgb_img, grayscale_cam, use_rgb=True)
-    visualization = visualization.astype(np.uint8)
-    cv2.imwrite(f'{img_id}_cam.jpg', visualization)
+    print(visualization)
 
 
 def unnormalize(img):
