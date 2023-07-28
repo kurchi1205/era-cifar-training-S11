@@ -47,9 +47,8 @@ def get_gradcam(model, use_cuda):
     cam = GradCAM(model=model, target_layers=target_layers, use_cuda=use_cuda)
     return cam
 
-def visualize_cam(cam, rgb_img, input_tensor, img_id):
-    targets = [ClassifierOutputTarget(9)]
-    print(targets)
+def visualize_cam(cam, rgb_img, input_tensor, target, img_id):
+    targets = [ClassifierOutputTarget(target)]
     grayscale_cam = cam(input_tensor=input_tensor, targets=targets)
     grayscale_cam = grayscale_cam[0, :]
     visualization = show_cam_on_image(rgb_img, grayscale_cam, use_rgb=True)
@@ -77,5 +76,6 @@ def get_misclassified_images_with_label(tensor, pred_label, class_to_idx):
     return {
         "img": img,
         "pred_class": pred_class,
-        "tensor": tensor
+        "tensor": tensor,
+        "pred_idx": pred_label
     }

@@ -134,7 +134,6 @@ def infer(model, device, infer_loader, misclassified, class_to_idx):
             pred = output.argmax(dim=1, keepdim=True)
             
             if pred.eq(target.view_as(pred)).sum().item() == 0:
-                print("getting misclassifies")
                 misclassified.append(get_misclassified_images_with_label(data, pred[0][0], class_to_idx))
             if len(misclassified) == 10:
                 break
@@ -143,4 +142,4 @@ def infer(model, device, infer_loader, misclassified, class_to_idx):
 def save_misclassified_images(model, use_cuda, misclassified_images):
     cam = get_gradcam(model, use_cuda)
     for i, miscl in enumerate(misclassified_images):
-        visualize_cam(cam, miscl["img"]/255, miscl["tensor"], f"{miscl['pred_class']}_{i}")
+        visualize_cam(cam, miscl["img"]/255, miscl["tensor"], miscl['pred_idx'], f"{miscl['pred_class']}_{i}")
