@@ -51,6 +51,7 @@ def visualize_cam(cam, rgb_img, input_tensor, img_id):
     targets = [ClassifierOutputTarget(9)]
     print(targets)
     grayscale_cam = cam(input_tensor=input_tensor, targets=targets)
+    grayscale_cam = grayscale_cam[0, :]
     visualization = show_cam_on_image(rgb_img, grayscale_cam, use_rgb=True)
     print(visualization)
 
