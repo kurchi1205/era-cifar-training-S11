@@ -48,7 +48,7 @@ def get_gradcam(model, use_cuda):
     return cam
 
 def visualize_cam(cam, rgb_img, input_tensor, img_id):
-    targets = [ClassifierOutputTarget(10)]
+    targets = [ClassifierOutputTarget(9)]
     grayscale_cam = cam(input_tensor=input_tensor, targets=targets)
     visualization = show_cam_on_image(rgb_img, grayscale_cam, use_rgb=True)
     cv2.imwrite(f'{img_id}_cam.jpg', visualization)
