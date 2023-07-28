@@ -6,6 +6,7 @@ from pytorch_grad_cam.utils.model_targets import ClassifierOutputTarget
 from pytorch_grad_cam.utils.image import show_cam_on_image
 import torchvision
 import numpy as np
+import cv2
 
 means = [0.4914, 0.4822, 0.4465]
 stds = [0.2470, 0.2435, 0.2616]
@@ -52,7 +53,7 @@ def visualize_cam(cam, rgb_img, input_tensor, img_id):
     grayscale_cam = cam(input_tensor=input_tensor, targets=targets)
     grayscale_cam = grayscale_cam[0, :]
     visualization = show_cam_on_image(rgb_img, grayscale_cam, use_rgb=True)
-    print(visualization)
+    cv2.imwrite(visualization, f"{img_id}_cam.jpg")
 
 
 def unnormalize(img):
