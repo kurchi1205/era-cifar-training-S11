@@ -57,7 +57,7 @@ def visualize_cam(cam, rgb_img, input_tensor, target, img_id):
 
 def unnormalize(img):
     img = img / 2 + 0.5   # unnormalize
-    npimg = img.numpy()   # convert from tensor
+    npimg = img.cpu().numpy()   # convert from tensor
     npimg = np.transpose(npimg, (1, 2, 0))
     return npimg
   
