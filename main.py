@@ -125,18 +125,16 @@ def train_model(epochs, model, train_loader, test_loader, optimizer, scheduler=N
         test(model, device, test_loader, test_losses, test_acc)
 
 
-def infer(model, device, infer_loader, misclassified):
+def infer(model, device, infer_loader, misclassified, class_to_idx):
     model.eval()
     with torch.no_grad():
         for data, target in infer_loader:
             data, target = data.to(device), target.to(device)
             output = model(data)
             pred = output.argmax(dim=1, keepdim=True)
-            print(pred)
-            print(target)
-            print(pred.eq(target.view_as(pred)).sum().item())
+            
             if pred.eq(target.view_as(pred)).sum().item() == 0:
                 print("getting misclassifies")
-                misclassified.append(get_misclassified_images_with_label(data, pred[0][0]))
+                misclassified.append(get_misclassified_images_with_label(data, pred[0][0], class_to_idx))
             if len(misclassified) == 10:
                 break
