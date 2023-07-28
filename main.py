@@ -6,6 +6,8 @@ import torch.nn as nn
 from torchsummary import summary
 from torch_lr_finder import LRFinder
 from tqdm import tqdm
+import matplotlib.pyplot as plt
+import numpy as np
 
 cuda = torch.cuda.is_available()
 device = torch.device("cuda" if cuda else "cpu")
@@ -139,7 +141,27 @@ def infer(model, device, infer_loader, misclassified, class_to_idx):
                 break
 
 
-def save_misclassified_images(model, use_cuda, misclassified_images):
+def plot_misclassified_grad_cam_images(model, use_cuda, misclassified_images):
     cam = get_gradcam(model, use_cuda)
+    f, axarr = plt.subplots(5,2, figsize=(8, 12))
     for i, miscl in enumerate(misclassified_images):
-        visualize_cam(cam, miscl["img"]/255, miscl["tensor"], miscl['pred_idx'], f"{miscl['pred_class']}_{i}")
+        f.add_subplot(5, 2, i+1)
+        img = visualize_cam(cam, miscl["img"]/255, miscl["tensor"], miscl['pred_idx'], f"{miscl['pred_class']}_{i}")
+        plt.imshow((img).astype(np.uint8))
+        plt.xlabel(miscl['pred_class'], fontsize=15)
+    f.tight_layout()
+    plt.savefig("misclassified_grad_cam.png")
+    plt.show()
+
+
+def plot_misclassified(misclassified):
+    f, axarr = plt.subplots(5,2, figsize=(8, 12))
+    for num in range(1, 11):
+        f.add_subplot(5, 2, num)
+        idx = num - 1
+        plt.imshow((misclassified[idx]["img"]).astype(np.uint8))
+        plt.xlabel(misclassified[idx]["pred_class"], fontsize=15)
+
+    f.tight_layout()
+    plt.savefig("misclassified_images.png")
+    plt.show()

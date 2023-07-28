@@ -52,7 +52,7 @@ def visualize_cam(cam, rgb_img, input_tensor, target, img_id):
     grayscale_cam = cam(input_tensor=input_tensor, targets=targets)
     grayscale_cam = grayscale_cam[0, :]
     visualization = show_cam_on_image(rgb_img, grayscale_cam, use_rgb=True)
-    cv2.imwrite(f"{img_id}_cam.jpg", visualization)
+    return visualization
 
 
 def unnormalize(img):
@@ -67,7 +67,7 @@ def interval_mapping(image, from_min, from_max, to_min, to_max):
     scaled = np.array((image - from_min) / float(from_range), dtype=float)
     return to_min + (scaled * to_range)
   
-  
+
 def get_image(tensor):
     img = torchvision.utils.make_grid(tensor)
     img = img.cpu().numpy()
