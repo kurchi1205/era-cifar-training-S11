@@ -133,6 +133,7 @@ def infer(model, device, infer_loader, misclassified):
             output = model(data)
             pred = output.argmax(dim=1, keepdim=True)
             print(pred)
+            print(pred.eq(target.view_as(pred)).sum().item())
             if pred.eq(target.view_as(pred)).sum().item() == 0:
                 misclassified.append(get_misclassified_images_with_label(data, pred))
             if len(misclassified) == 10:
