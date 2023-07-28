@@ -17,8 +17,8 @@ def get_data():
     return train_ds, test_ds
 
 
-def get_dataloader(data, batch_size, shuffle=True, num_workers=4):
-    dataloader_args = dict(shuffle=shuffle, batch_size=batch_size, num_workers=num_workers, pin_memory=True) if cuda else dict(shuffle=True, batch_size=64)
+def get_dataloader(data, batch_size, cpu_batch_size=64, shuffle=True, num_workers=4):
+    dataloader_args = dict(shuffle=shuffle, batch_size=batch_size, num_workers=num_workers, pin_memory=True) if cuda else dict(shuffle=True, batch_size=cpu_batch_size)
     loader = torch.utils.data.DataLoader(data, **dataloader_args)
     return loader
 
@@ -136,6 +136,7 @@ def infer(model, device, infer_loader, misclassified):
             print(target)
             print(pred.eq(target.view_as(pred)).sum().item())
             if pred.eq(target.view_as(pred)).sum().item() == 0:
-                misclassified.append(get_misclassified_images_with_label(data, pred))
+                print("getting misclassifies")
+                misclassified.append(get_misclassified_images_with_label(data, pred[0][0]))
             if len(misclassified) == 10:
                 break
