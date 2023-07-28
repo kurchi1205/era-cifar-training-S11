@@ -60,10 +60,19 @@ def unnormalize(img):
     npimg = img.cpu().numpy()   # convert from tensor
     npimg = np.transpose(npimg, (1, 2, 0))
     return npimg
+
+def interval_mapping(image, from_min, from_max, to_min, to_max):
+    from_range = from_max - from_min
+    to_range = to_max - to_min
+    scaled = np.array((image - from_min) / float(from_range), dtype=float)
+    return to_min + (scaled * to_range)
+  
   
 def get_image(tensor):
     img = torchvision.utils.make_grid(tensor)
-    unnorm_img = unnormalize(img)
+    img = img.cpu().numpy()
+    img = interval_mapping(img, np.min(img), np.max(img), 0, 255)
+    unnorm_img = np.transpose(img, (1, 2, 0))
     return unnorm_img
 
 
