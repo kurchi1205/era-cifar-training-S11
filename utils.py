@@ -6,7 +6,8 @@ from pytorch_grad_cam.utils.model_targets import ClassifierOutputTarget
 from pytorch_grad_cam.utils.image import show_cam_on_image
 import torchvision
 import numpy as np
-import cv2
+import matplotlib.pyplot as plt
+import numpy as np
 
 means = [0.4914, 0.4822, 0.4465]
 stds = [0.2470, 0.2435, 0.2616]
@@ -88,3 +89,40 @@ def get_misclassified_images_with_label(tensor, pred_label, class_to_idx):
         "tensor": tensor,
         "pred_idx": pred_label
     }
+
+def plot_misclassified_grad_cam_images(model, use_cuda, misclassified_images):
+    cam = get_gradcam(model, use_cuda)
+    f, axarr = plt.subplots(5,2, figsize=(8, 12))
+    for i, miscl in enumerate(misclassified_images):
+        f.add_subplot(5, 2, i+1)
+        img = visualize_cam(cam, miscl["img"]/255, miscl["tensor"], miscl['pred_idx'], f"{miscl['pred_class']}_{i}")
+        plt.imshow((img).astype(np.uint8))
+        plt.xlabel(miscl['pred_class'], fontsize=15)
+    f.tight_layout()
+    plt.savefig("misclassified_grad_cam.png")
+    plt.show()
+
+
+def plot_misclassified(misclassified):
+    f, axarr = plt.subplots(5,2, figsize=(8, 12))
+    for num in range(1, 11):
+        f.add_subplot(5, 2, num)
+        idx = num - 1
+        plt.imshow((misclassified[idx]["img"]).astype(np.uint8))
+        plt.xlabel(misclassified[idx]["pred_class"], fontsize=15)
+
+    f.tight_layout()
+    plt.savefig("misclassified_images.png")
+    plt.show()
+
+def plot_losses(train_losses, test_losses, train_acc, test_acc):
+    fig, axs = plt.subplots(2,2,figsize=(15,10))
+    t = [t_items.item() for t_items in train_losses]
+    axs[0, 0].plot(t)
+    axs[0, 0].set_title("Training Loss")
+    axs[1, 0].plot(train_acc)
+    axs[1, 0].set_title("Training Accuracy")
+    axs[0, 1].plot(test_losses)
+    axs[0, 1].set_title("Test Loss")
+    axs[1, 1].plot(test_acc)
+    axs[1, 1].set_title("Test Accuracy")

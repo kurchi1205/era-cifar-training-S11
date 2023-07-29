@@ -1,4 +1,4 @@
-from utils import CIFAR10WithAlbumentations, train_transforms, test_transforms, get_misclassified_images_with_label, get_gradcam, visualize_cam
+from utils import CIFAR10WithAlbumentations, train_transforms, test_transforms, get_misclassified_images_with_label, plot_misclassified, plot_misclassified_grad_cam_images, plot_losses
 from models.resnet18 import Resnet18
 from models.resnet import ResNet18
 import torch
@@ -125,6 +125,7 @@ def train_model(epochs, model, train_loader, test_loader, optimizer, scheduler=N
         print("EPOCH:", epoch)
         train(model, device, train_loader, optimizer, scheduler, epoch, train_losses, train_acc)
         test(model, device, test_loader, test_losses, test_acc)
+    return train_losses, test_losses, train_acc, test_acc
 
 
 def infer(model, device, infer_loader, misclassified, class_to_idx):
@@ -141,27 +142,3 @@ def infer(model, device, infer_loader, misclassified, class_to_idx):
                 break
 
 
-def plot_misclassified_grad_cam_images(model, use_cuda, misclassified_images):
-    cam = get_gradcam(model, use_cuda)
-    f, axarr = plt.subplots(5,2, figsize=(8, 12))
-    for i, miscl in enumerate(misclassified_images):
-        f.add_subplot(5, 2, i+1)
-        img = visualize_cam(cam, miscl["img"]/255, miscl["tensor"], miscl['pred_idx'], f"{miscl['pred_class']}_{i}")
-        plt.imshow((img).astype(np.uint8))
-        plt.xlabel(miscl['pred_class'], fontsize=15)
-    f.tight_layout()
-    plt.savefig("misclassified_grad_cam.png")
-    plt.show()
-
-
-def plot_misclassified(misclassified):
-    f, axarr = plt.subplots(5,2, figsize=(8, 12))
-    for num in range(1, 11):
-        f.add_subplot(5, 2, num)
-        idx = num - 1
-        plt.imshow((misclassified[idx]["img"]).astype(np.uint8))
-        plt.xlabel(misclassified[idx]["pred_class"], fontsize=15)
-
-    f.tight_layout()
-    plt.savefig("misclassified_images.png")
-    plt.show()
